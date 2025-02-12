@@ -5,7 +5,7 @@ from rest_framework import status
 from ...models import Names, NormalUser, UserName, lastPasswords
 from ...serializers.Names import CreateNames, CreateUserName
 from ...serializers.NormalUser import UpdateNormalUser, SaveOldPassword
-from ...serializers.NormalUser import UpdateaPassword
+from ...serializers.NormalUser import UpdateaPassword, UpdatePhotoUser
 import jwt
 import os
 # from ...throttles import DailyRateThrottle, HourlyRateThrottle
@@ -401,3 +401,47 @@ def same_password(password, user):
                 allow_to_change = False
                 return same_pass, allow_to_change
     return same_pass, allow_to_change
+
+
+@api_view(['PUT'])
+def update_user_photo(request):
+    if request.method != 'PUT':
+        return JsonResponse({'success': False,
+                             'message': 'Método não permitido'},
+                            status=status.HTTP_405_METHOD_NOT_ALLOWED)
+    try:
+        auth_header = request.headers.get('Authorization')
+        if not auth_header or not auth_header.startswith('Bearer '):
+            return JsonResponse({
+                "success": False,
+                "message": "Token de acesso não fornecido ou formato inválido."
+            }, status=status.HTTP_401_UNAUTHORIZED)
+
+        token = auth_header.split(' ')[1]
+
+        payload = jwt.decode(token, SECRET_KEY, algorithms=['HS256'])
+        user_id = payload.get('id')
+
+        user = NormalUser.objects.get(id=user_id)
+        photo = request.data.get('photo', None)
+
+        if photo is None:
+            return JsonResponse({'success': False,
+                                 'message': 'Foto não fornecida'},
+                                status=status.HTTP_400_BAD_REQUEST)
+        new_photo = UpdatePhotoUser(user,
+                                    data={'photo': photo},
+                                    partial=True)
+        if not new_photo.is_valid():
+            return JsonResponse({'success': False,
+                                 'message': 'Foto inválida'},
+                                status=status.HTTP_400_BAD_REQUEST)
+
+        new_photo.save()
+        return JsonResponse({'success': True,
+                             'message': 'Foto atualizada com sucesso'},
+                            status=status.HTTP_200_OK)
+    except NormalUser.DoesNotExist:
+        return JsonResponse({'success': False,
+                             'message': 'Usuário não encontrado'},
+                            status=status.HTTP_404_NOT_FOUND)

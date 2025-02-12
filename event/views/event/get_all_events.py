@@ -4,7 +4,7 @@ from rest_framework import status
 import os
 import jwt
 from dotenv import load_dotenv
-from ...models import NormalUser, Event, UserName, Names
+from ...models import NormalUser, Event, UserName, Names, EventFilter
 load_dotenv()
 SECRET_KEY = os.getenv('JWT_SECRET_KEY')
 
@@ -35,7 +35,6 @@ def get_user_events(request):
                             status=status.HTTP_404_NOT_FOUND)
 
     events = Event.objects.filter(event_creator=user_id)
-
     # Verificação se há eventos
     if not events:
         return JsonResponse({"success": False,
@@ -62,7 +61,13 @@ def get_user_events(request):
 
         # Obter a URL do QR Code
         qr_code_url = event.qr_code.url if event.qr_code else None
-
+        event_filters = EventFilter.objects.filter(event=event.id)
+        if event_filters.filter(is_active=True).exists():
+            filter = False
+        elif event_filters.filter(is_active=False).exists():
+            filter = True
+        else:
+            filter = False
         # Preparando os dados para retorno
         event_data = {
             "id": event.id,
@@ -74,7 +79,8 @@ def get_user_events(request):
             "description": event.descricao,
             "photo": photo_url,  # URL da foto do evento
             "qrCode": qr_code_url,  # URL do QR Code do evento
-            "participantes": event.participantes
+            "participantes": event.participantes,
+            "existFilter": filter
         }
         event_list.append(event_data)
 

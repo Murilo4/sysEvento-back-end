@@ -20,7 +20,8 @@ class NormalUser(models.Model):
     user_type = models.CharField(max_length=45)
     phone = models.CharField(max_length=25)
     password = models.CharField(max_length=255)
-    photo = models.CharField(max_length=255, null=True)
+    photo = models.ImageField(upload_to='user_photos/',
+                              blank=True, null=True)
     is_validated = models.BooleanField(default=0)
     is_staff = models.BooleanField(default=0)
     last_pass_change = models.DateTimeField(auto_now=True)
@@ -84,6 +85,8 @@ class Plans(models.Model):
     price = models.IntegerField()
     plan_type = models.CharField(max_length=255)
     plan_name = models.CharField(max_length=255)
+    belonging_system = models.CharField(max_length=255)
+    description = models.TextField()
     created_at = models.DateTimeField(auto_now=True)
     updated_at = models.DateTimeField(auto_now_add=True)
 
@@ -109,9 +112,10 @@ class Subscription(models.Model):
 class PlansConfig(models.Model):
     id = models.IntegerField(primary_key=True)
     plan = models.ForeignKey(Plans, on_delete=models.CASCADE)
-    images_allowed = models.IntegerField()
     videos_allowed = models.BooleanField()
     points_multiplier = models.IntegerField()
+    number_events = models.IntegerField()
+    image_on_questions = models.BooleanField()
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 

@@ -34,3 +34,29 @@ def get_plan(request):
         return JsonResponse({'success': False,
                              'message': 'Plan not found'},
                             status=status.HTTP_404_NOT_FOUND)
+
+
+@api_view(['GET'])
+def get_plan_to_assign(request, planId):
+    if request.method != 'GET':
+        return JsonResponse({'success': False,
+                            'message': 'Invalid request method'},
+                            status=status.HTTP_400_BAD_REQUEST)
+    try:
+        plan = Plans.objects.get(id=planId)
+
+        plan_data = {
+            'description': plan.description,
+            'price': plan.price,
+            'planName': plan.plan_name
+        }
+
+        return JsonResponse({'success': True,
+                            'message': 'Dados retornados',
+                             'data': plan_data},
+                            status=status.HTTP_200_OK)
+
+    except (Subscription.DoesNotExist, Plans.DoesNotExist):
+        return JsonResponse({'success': False,
+                             'message': 'Plan not found'},
+                            status=status.HTTP_404_NOT_FOUND)

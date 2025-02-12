@@ -27,8 +27,6 @@ class UpdateNormalUser(serializers.ModelSerializer):
             'cpf', instance.cpf)
         instance.phone = validated_data.get(
             'phone', instance.phone)
-        instance.photo = validated_data.get(
-            'photo', instance.photo)
         instance.cnpj = validated_data.get(
             'cnpj', instance.cnpj)
 
@@ -86,3 +84,17 @@ class CreateAuthorizationEvents(serializers.ModelSerializer):
         user = UserAuthorization(**validated_data)
         user.save()
         return user
+
+
+class UpdatePhotoUser(serializers.ModelSerializer):
+    class Meta:
+        model = NormalUser
+        fields = ['photo']
+
+    def update(self, instance, validated_data):
+        instance.photo = validated_data.get(
+            'photo', instance.photo)
+
+        instance.save()
+
+        return instance

@@ -65,14 +65,14 @@ def get_user_profile(request):
                 continue
 
         full_name = " ".join(names)
-
+        photo_url = user.photo.url if user.photo else None
         user_data = {
             'username': full_name,
             'email': user.email,
             'cpf': user.cpf,
             'cnpj': user.cnpj,
             'phone': user.phone,
-            'photo': user.photo
+            'photo': photo_url
         }
         try:
             plan = Subscription.objects.get(user=user_id)

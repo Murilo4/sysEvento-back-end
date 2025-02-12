@@ -10,6 +10,7 @@ from .views.account.delete_account import delete_user
 from .views.account.update_account import password_reset
 from .views.account.update_account import password_reset_confirm
 from .views.account.update_account import password_forgot_change
+from .views.account.update_account import update_user_photo
 from .views.account.update_account import forgot_password
 from .views.account.user_creation import validate_jwt
 from .views.account.user_creation import generate_new_token
@@ -42,6 +43,9 @@ from .views.event_user.validate_user import register_user_event
 from .views.event_user.user_data import get_user_data
 from .views.event_user.get_end_event import get_end_data
 from .views.event_user.validate_next_question import validate_next_question
+from .views.plans.get_all_plans import get_all_plans
+from .views.plans.preference import create_preference
+from .views.plans.get_plan import get_plan_to_assign
 from django.conf.urls.static import static
 from django.conf import settings
 
@@ -68,6 +72,8 @@ urlpatterns = [
          validate_jwt, name="validate_jwt"),
     path("generate-new-token/",
          generate_new_token, name="generate_new_token"),
+    path("update-user-photo/",
+         update_user_photo, name="update_user_photo"),
 
     # Password Reset
     path('request-reset/',
@@ -143,5 +149,12 @@ urlpatterns = [
 
     path("validate-user/<int:eventId>/",
          register_user_event, name="register_user_event"),
+
+    path("get-all-plans/",
+         get_all_plans, name="get_all_plans"),
+    path('create_preference/', create_preference,
+         name='create_preference'),
+    path("get-plan/<int:planId>/",
+         get_plan_to_assign, name="get_plan_to_assign")
 
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
