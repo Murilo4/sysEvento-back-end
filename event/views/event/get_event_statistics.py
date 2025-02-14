@@ -3,7 +3,7 @@ from django.http import JsonResponse
 from rest_framework import status
 import os
 from django.db.models import Count
-from ...models import EventStatistics, Event, Answers, Questions
+from ...models import EventStatistics, Event, Answers, Questions, EventFilter
 from ...models import NormalUser
 import jwt
 from dotenv import load_dotenv
@@ -52,6 +52,13 @@ def get_event_stats(request, eventId):
                              "message": "Evento não encontrado."},
                             status=status.HTTP_404_NOT_FOUND)
 
+    # Filtrar pelo último EventFilter criado
+    event_filter = EventFilter.objects.filter(event=event.id).order_by('-id').first()
+    if not event_filter:
+        return JsonResponse({"success": False,
+                             "message": "Filtro de evento não encontrado."},
+                            status=status.HTTP_404_NOT_FOUND)
+
     questions = Questions.objects.filter(event=event.id)
 
     event_statistics = []
@@ -68,7 +75,7 @@ def get_event_stats(request, eventId):
 
             for answer in answers:
                 answer_count = EventStatistics.objects.filter(
-                    answer=answer, question=question.id).count()
+                    answer=answer, question=question.id, event=event_filter.id).count()
 
                 question_data['answers'].append({
                     'answer': answer.answer_option,
@@ -79,7 +86,7 @@ def get_event_stats(request, eventId):
         # Perguntas abertas
         elif question_tp == 'open_short' or question_tp == 'open_long':
             open_answers = EventStatistics.objects.filter(
-                question=question.id).values('answer_text').annotate(
+                question=question.id, event=event_filter.id).values('answer_text').annotate(
                     count=Count('id'))
 
             for open_answer in open_answers:

@@ -18,7 +18,7 @@ class CreateNormalUser(serializers.ModelSerializer):
 class UpdateNormalUser(serializers.ModelSerializer):
     class Meta:
         model = NormalUser
-        fields = 'email', 'cpf', 'phone', 'cnpj', 'photo'
+        fields = 'email', 'cpf', 'phone', 'cnpj'
 
     def update(self, instance, validated_data):
         instance.email = validated_data.get(

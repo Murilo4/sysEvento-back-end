@@ -132,24 +132,23 @@ def update_event(request, eventId):
                                              'error': serializer.errors},
                                             status=status.HTTP_400_BAD_REQUEST)
             order = 1
-            if referencias:
-                for referencia in referencias:
-                    try:
-                        serializer_user = CreateUserNameEvent(
-                            data={'name_id': referencia,
-                                  'event_id': event_id,
-                                  'create_order': order})
-                        if serializer_user.is_valid():
-                            serializer_user.save()
-                            order += 1
-                        else:
-                            return JsonResponse({'success': False,
-                                                'message':
-                                                 'Erro ao criar nome'})
-                    except Exception:
+            for name in name_list:
+                try:
+                    name_obj = Names.objects.get(name=name)
+                    serializer_user = CreateUserNameEvent(
+                        data={'name_id': name_obj.id,
+                              'event_id': event_id,
+                              'create_order': order})
+                    if serializer_user.is_valid():
+                        serializer_user.save()
+                        order += 1
+                    else:
                         return JsonResponse({'success': False,
-                                            'message': 'Erro inesperado'},
-                                            status=status.HTTP_400_BAD_REQUEST)
+                                            'message': 'Erro ao criar nome'})
+                except Names.DoesNotExist:
+                    return JsonResponse({'success': False,
+                                        'message': 'Nome não encontrado'},
+                                        status=status.HTTP_400_BAD_REQUEST)
 
         return JsonResponse({"success": True,
                             "message": "Evento atualizado com sucesso"},

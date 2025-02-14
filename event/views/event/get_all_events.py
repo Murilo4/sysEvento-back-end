@@ -29,12 +29,15 @@ def get_user_events(request):
 
     try:
         NormalUser.objects.get(id=user_id)
+        events = Event.objects.filter(event_creator=user_id)
     except NormalUser.DoesNotExist:
         return JsonResponse({"success": False,
                              "message": "Usuário não encontrado."},
                             status=status.HTTP_404_NOT_FOUND)
-
-    events = Event.objects.filter(event_creator=user_id)
+    except Event.DoesNotExist:
+        return JsonResponse({"success": False,
+                             "message": "Nenhum evento encontrado."},
+                            status=status.HTTP_404_NOT_FOUND)
     # Verificação se há eventos
     if not events:
         return JsonResponse({"success": False,

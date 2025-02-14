@@ -56,6 +56,7 @@ def update_user(request):
         cnpj = request.data.get('cnpj', None)
         email = request.data.get('email', None)
         update_name = request.data.get('username')
+        print(phone, cpf, cnpj, email, update_name)
         if phone:
             validate = validate_phoneNumber(phone)
             if not validate:
@@ -85,7 +86,7 @@ def update_user(request):
         with transaction.atomic():
             update_user = UpdateNormalUser(user,
                                            data=request.data, partial=True)
-            if update_user.is_valid():
+            if update_user.is_valid(raise_exception=True):
                 update_user.save()
             else:
                 return JsonResponse({'success': False,
@@ -110,8 +111,8 @@ def update_user(request):
                 name_list = update_name.split()
 
                 new_names = [name for name in name_list if name not in db_name]
-                rmvd_name = [name for name in db_name if name not in name_list]
 
+                UserName.objects.filter(user_id=user_id).delete()
                 referencias = []
                 for new_name in new_names:
                     try:
@@ -124,39 +125,30 @@ def update_user(request):
                             new_name_obj = serializer.save()
                             referencias.append(new_name_obj.id)
                         else:
-                            return JsonResponse({
-                                'success': False,
-                                'message': 'Erro ao criar novo nome',
-                                'error': serializer.errors
-                            }, status=status.HTTP_400_BAD_REQUEST)
-
-                if referencias:
-                    order = UserName.objects.filter(
-                        user_id=user.id).count() + 1
-                    for referencia in referencias:
+                            return JsonResponse({'success': False,
+                                                'message':
+                                                 'Erro ao criar novo nome',
+                                                 'error': serializer.errors},
+                                                status=status.HTTP_400_BAD_REQUEST)
+                order = 1
+                for name in name_list:
+                    try:
+                        name_obj = Names.objects.get(name=name)
                         serializer_user = CreateUserName(
-                            data={'name_id': referencia,
-                                  'user_id': user.id,
+                            data={'name_id': name_obj.id,
+                                  'user_id': user_id,
                                   'create_order': order})
                         if serializer_user.is_valid():
                             serializer_user.save()
                             order += 1
                         else:
-                            return JsonResponse({
-                                'success': False,
-                                'message': 'Erro ao criar nome do usuário',
-                                'error': serializer_user.errors
-                            }, status=status.HTTP_400_BAD_REQUEST)
-
-                if rmvd_name:
-                    for name in rmvd_name:
-                        try:
-                            name_obj = Names.objects.get(name=name)
-                            UserName.objects.filter(user_id=user.id,
-                                                    name_id=name_obj.id
-                                                    ).delete()
-                        except Names.DoesNotExist:
-                            continue
+                            return JsonResponse({'success': False,
+                                                'message': 'Erro ao criar nome'
+                                                 })
+                    except Names.DoesNotExist:
+                        return JsonResponse({'success': False,
+                                            'message': 'Nome não encontrado'},
+                                            status=status.HTTP_400_BAD_REQUEST)
 
         return JsonResponse({'success': True,
                             'message': 'Usuário atualizado com sucesso'},

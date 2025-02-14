@@ -117,7 +117,7 @@ class UserEventSerializer(serializers.ModelSerializer):
     class Meta:
         model = UserEvent
         fields = ['event', 'name', 'email',
-                  'cpf', 'cnpj', 'phone', 'user']
+                  'cpf', 'cnpj', 'phone', 'user', 'filter']
 
     def create(self, validated_data):
         event = UserEvent(**validated_data)

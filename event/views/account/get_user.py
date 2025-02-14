@@ -1,7 +1,7 @@
 from rest_framework.decorators import api_view  # , throttle_classes
 from django.http import JsonResponse
 from rest_framework import status
-from ...models import NormalUser, UserName, Names, Subscription
+from ...models import NormalUser, UserName, Names, Subscription, Plans
 import jwt
 import os
 from cryptography.fernet import Fernet
@@ -75,14 +75,13 @@ def get_user_profile(request):
             'photo': photo_url
         }
         try:
-            plan = Subscription.objects.get(user=user_id)
+            sub = Subscription.objects.get(user=user_id)
+            plan = Plans.objects.get(id=sub.plan_id)
 
             plan_data = {
-                'dataTime': plan.subscription_data,
-                'imagesAllowed': plan.images_allowed,
-                'videosAllowed': plan.videos_allowed
+                'PlanName': plan.plan_name,
             }
-        except Subscription.DoesNotExist:
+        except (Subscription.DoesNotExist, Plans.DoesNotExist):
             plan_data = {}
 
         return JsonResponse({

@@ -60,7 +60,6 @@ def get_question_event(request, eventId):
                             status=status.HTTP_405_METHOD_NOT_ALLOWED)
     event_id = eventId
     question_actual = ActualQuestion.objects.get(event=event_id)
-    print(question_actual)
     question_id = question_actual.actual_question
 
     question_db = Questions.objects.get(

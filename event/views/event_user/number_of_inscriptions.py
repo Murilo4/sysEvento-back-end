@@ -1,7 +1,7 @@
 from rest_framework.decorators import api_view
 from django.http import JsonResponse
 from rest_framework import status
-from ...models import Event, UserEvent
+from ...models import Event, UserEvent, EventFilter
 
 
 @api_view(['GET'])
@@ -13,9 +13,18 @@ def get_registration_count(request, eventId):
     try:
         event_id = eventId
         event = Event.objects.get(id=event_id)
+
+        # Obter o filtro ativo para o evento
+        event_filter = EventFilter.objects.filter(event=event.id, 
+                                                  is_active=True).first()
+        if not event_filter:
+            return JsonResponse({"success": False,
+                                 "message": "Filtro de evento ativo não encontrado."},
+                                status=status.HTTP_404_NOT_FOUND)
+
         try:
             number_inscription = UserEvent.objects.filter(
-                event=event).count()
+                event=event, filter=event_filter).count()
         except UserEvent.DoesNotExist:
             number_inscription = 0
 

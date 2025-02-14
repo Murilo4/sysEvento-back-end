@@ -3,7 +3,7 @@ from django.http import JsonResponse
 from rest_framework import status
 import jwt
 import os
-from ...models import NormalUser, Names, UserName, UserEvent
+from ...models import NormalUser, Names, UserName, UserEvent, EventFilter
 from ...models import Event
 from ...serializers.event import UserEventSerializer
 from dotenv import load_dotenv
@@ -36,6 +36,7 @@ def accept_event(request, eventId):
         return JsonResponse({"success": False,
                              "message": "usuario não localizado"},
                             status=status.HTTP_400_BAD_REQUEST)
+
     username_list = UserName.objects.filter(
             user_id=user.id).order_by('create_order')
     names = []
@@ -47,13 +48,23 @@ def accept_event(request, eventId):
             continue
 
     full_name = " ".join(names)
+
+    # Obter o último EventFilter criado para o evento
+    event_filter = EventFilter.objects.filter(
+        event=eventId).order_by('-id').first()
+    if not event_filter:
+        return JsonResponse({"success": False,
+                             "message": "Filtro de evento não encontrado."},
+                            status=status.HTTP_404_NOT_FOUND)
+
     user_event = {
         "email": user.email,
         "cpf": user.cpf if user.cpf else None,
         "cnpj": user.cnpj if user.cnpj else None,
         "name": full_name,
         "phone": user.phone if user.phone else None,
-        "event": eventId
+        "event": eventId,
+        "filter": event_filter.id  # Adicionando o campo filter_id
     }
 
     try:
@@ -84,7 +95,8 @@ def accept_event(request, eventId):
         "phone": get_user_event.phone if get_user_event.phone else None,
         "cpf": get_user_event.cpf if get_user_event.cpf else None,
         "cnpj": get_user_event.cnpj if get_user_event.cnpj else None,
-        "event": get_user_event.event.id
+        "event": get_user_event.event.id,
+        "filter_id": get_user_event.filter.id
     }
     return JsonResponse({
         'success': True,

@@ -46,6 +46,7 @@ def get_plan_to_assign(request, planId):
         plan = Plans.objects.get(id=planId)
 
         plan_data = {
+            'id': plan.id,
             'description': plan.description,
             'price': plan.price,
             'planName': plan.plan_name

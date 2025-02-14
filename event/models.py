@@ -201,6 +201,16 @@ class EventAnswer(models.Model):
         db_table = "event_answers"
 
 
+class EventFilter(models.Model):
+    id = models.AutoField(primary_key=True)
+    event = models.ForeignKey(Event, on_delete=models.CASCADE)
+    is_active = models.BooleanField()
+
+    class Meta:
+        managed = False
+        db_table = "event_filter"
+
+
 class UserEvent(models.Model):
     id = models.IntegerField(primary_key=True)
     event = models.ForeignKey(Event, on_delete=models.CASCADE)
@@ -210,20 +220,11 @@ class UserEvent(models.Model):
     cpf = models.CharField(max_length=55, blank=True, null=True)
     cnpj = models.CharField(max_length=55, blank=True, null=True)
     name = models.CharField(max_length=100)
+    filter = models.ForeignKey(EventFilter, on_delete=models.CASCADE)
 
     class Meta:
         managed = False
         db_table = "user_event"
-
-
-class EventFilter(models.Model):
-    id = models.AutoField(primary_key=True)
-    event = models.ForeignKey(Event, on_delete=models.CASCADE)
-    is_active = models.BooleanField()
-
-    class Meta:
-        managed = False
-        db_table = "event_filter"
 
 
 class EventStatistics(models.Model):
