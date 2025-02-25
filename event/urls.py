@@ -35,6 +35,7 @@ from .views.questions.get_question import get_question
 from .views.event_user.accept_event import accept_event
 from .views.event_user.accept_event import validate_owner
 from .views.questions.get_question import get_question_event
+from .views.questions.add_question_to_user import add_question_to_user
 from .views.questions.update_question_photo import update_question_photo
 from .views.questions.get_all_question import get_questions_and_answers
 from .views.answers.delete_answer import delete_answer
@@ -137,6 +138,8 @@ urlpatterns = [
          update_question_photo, name="update_question_photo"),
     path("get-questions-user/<str:filter_type>/",
          get_questions_user, name="get_questions_user"),
+    path("add-question-to-events/",
+         add_question_to_user, name="add_question_to_user"),
 
     # answers
     path('delete-answer/<int:eventId>/<int:answerId>/',

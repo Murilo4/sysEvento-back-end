@@ -54,8 +54,9 @@ def delete_question(request, eventId, questionId):
             event_count = EventQuestions.objects.filter(
                 question=question).count()
 
-            if event_count > 1:
-                EventQuestions.objects.filter(question=question).delete()
+            if event_count > 1 or question.event != event_id:
+                EventQuestions.objects.filter(
+                    event=event, question=question).delete()
                 return JsonResponse({'success': True,
                                     'message':
                                      'Vínculo com o evento removido.'},

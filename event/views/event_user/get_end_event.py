@@ -40,7 +40,7 @@ def get_end_data(request, eventId, userId):
                                                  question=question)
                 for answer in answers:
                     formatted_answers.append({
-                        'answer_text': answer.answer_option if answer else None
+                     'answer_text': answer.answer_option if answer else None
                     })
         options = Answers.objects.filter(question=question)
 
@@ -48,7 +48,7 @@ def get_end_data(request, eventId, userId):
             'question_id': question.id,
             'question_text': question.question,
             'question_type': question.question_type,
-            'options': [{'id': option.id, 'text': option.answer_option} for option in options],
+            'options': [option.answer_option for option in options],
             'user_answers': formatted_answers
         })
 
