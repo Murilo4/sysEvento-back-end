@@ -30,6 +30,7 @@ def get_questions_user(request, filter_type):
         user_id = payload.get('id')
         search_text = request.GET.get('search', '')
         page_number = request.GET.get('page', 1)
+        types = request.GET.get('types', '').split(',')
 
         if filter_type == 'user':
             user_events = EventStatistics.objects.filter(
@@ -39,16 +40,19 @@ def get_questions_user(request, filter_type):
             all_events = list(user_events) + list(created_events)
             questions = Questions.objects.filter(
                 eventquestions__event__in=all_events,
-                question__icontains=search_text)
+                question__icontains=search_text,
+                question_type__in=types)
         elif filter_type == 'other':
             user_events = EventStatistics.objects.filter(
                 user_event=user_id).values_list('event', flat=True)
             questions = Questions.objects.exclude(
                 eventquestions__event__in=user_events).filter(
-                question__icontains=search_text)
+                question__icontains=search_text,
+                question_type__in=types)
         else:
             questions = Questions.objects.filter(
-                question__icontains=search_text)
+                question__icontains=search_text,
+                question_type__in=types)
     except Questions.DoesNotExist:
         return JsonResponse({"success": False,
                              "message": "Error fetching questions"},

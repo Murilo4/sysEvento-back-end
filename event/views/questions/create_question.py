@@ -71,7 +71,6 @@ def create_question(request, eventId):
         with transaction.atomic():
             existing_question = Questions.objects.filter(
                 question=question_text, question_type=question_type).first()
-            print("o erro não deu aqui")
             if existing_question:
                 # Se a pergunta já existir, apenas vincular ao evento
                 event_question_data = {
@@ -96,13 +95,10 @@ def create_question(request, eventId):
                 "event": event_id,
                 "photo": question_photo
             }
-            print("gerou o question data da nova pergunta")
             new_question = CreateQuestions(data=question_data)
             if not new_question.is_valid():
                 raise Exception("Erro ao criar a pergunta.")
             question = new_question.save()
-            print("gerou a pergunta e está gerando o question data da tabela intermediaria")
-            # Associar a nova pergunta ao evento
             event_question_data = {
                 "question": question.id,
                 "event": event_id
@@ -111,12 +107,17 @@ def create_question(request, eventId):
             if not new_event_question.is_valid(raise_exception=True):
                 raise Exception("Erro ao associar a pergunta ao evento.")
             new_event_question.save()
-            print("fez o processo completo")
             if question_type in ['multiple_choice', 'single_choice']:
+                correct_answer_count = 0
                 for answer_data in answers:
-                    print(answer_data)
                     answer_text = answer_data.get("answer")
                     is_correct = answer_data.get("isCorrect", False)
+
+                    if question_type == 'single_choice' and is_correct:
+                        correct_answer_count += 1
+                        if correct_answer_count > 1:
+                            raise Exception(
+                                "Resposta pode ser marcada como correta.")
 
                     answer_payload = {
                         "answer_option": answer_text,
