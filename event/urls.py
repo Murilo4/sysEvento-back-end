@@ -47,6 +47,7 @@ from .views.event_user.validate_next_question import validate_next_question
 from .views.plans.get_all_plans import get_all_plans
 from .views.plans.preference import create_preference
 from .views.plans.get_plan import get_plan_to_assign
+from views.cron_job import cron_job
 from .views.questions.get_question_another_user import get_questions_user
 from django.conf.urls.static import static
 from django.conf import settings
@@ -161,6 +162,9 @@ urlpatterns = [
     path('create_preference/', create_preference,
          name='create_preference'),
     path("get-plan/<int:planId>/",
-         get_plan_to_assign, name="get_plan_to_assign")
+         get_plan_to_assign, name="get_plan_to_assign"),
+
+    path("cron-job/",
+         cron_job, name="cron_job"),
 
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
