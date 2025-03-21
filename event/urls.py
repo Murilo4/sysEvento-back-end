@@ -47,7 +47,7 @@ from .views.event_user.validate_next_question import validate_next_question
 from .views.plans.get_all_plans import get_all_plans
 from .views.plans.preference import create_preference
 from .views.plans.get_plan import get_plan_to_assign
-from views.cron_job import cron_job
+from .views.cron_job import cron_job
 from .views.questions.get_question_another_user import get_questions_user
 from django.conf.urls.static import static
 from django.conf import settings
