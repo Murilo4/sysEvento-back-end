@@ -39,6 +39,16 @@ CORS_ALLOWED_ORIGINS = [
     "http://localhost:8000",
     "http://localhost:8001",
     'http://127.0.0.1:3000',
+    "https://syseventos-backend.onrender.com",
+    "https://front-end-syseventos.onrender.com",
+]
+
+CSRF_TRUSTED_ORIGINS = [
+    'http://localhost:3000',
+    'https://localhost:3000',
+    "http://localhost:8001",
+    "https://syseventos-backend.onrender.com",
+    "https://front-end-syseventos.onrender.com",
 ]
 
 
@@ -102,7 +112,6 @@ name = os.getenv('NAME')
 user = os.getenv('USER')
 password = os.getenv('PASSWORD')
 host = os.getenv('HOST')
-port = os.getenv('PORT')
 
 DATABASES = {
     'default': {
@@ -111,7 +120,7 @@ DATABASES = {
         'USER': user,
         'PASSWORD': password,
         'HOST': host,
-        'PORT': port,
+        'PORT': 14232,
         'OPTIONS': {
             'ssl': {
                 'ca': './ca.pem',
