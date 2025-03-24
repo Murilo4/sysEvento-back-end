@@ -379,13 +379,25 @@ def validate_jwt(request):
 
 @api_view(['POST'])
 def generate_new_token(request):
-    email = request.data.get('email')
-    if not email:
-        return JsonResponse({"success": False,
-                             "message": "Email is missing"},
+    identifier = request.data.get('identifier')
+
+    if not identifier:
+        return JsonResponse({"success": False, "message": "Identifier is missing"},
                             status=status.HTTP_400_BAD_REQUEST)
 
-    token = generate_jwt(email)
+    # Buscar o usuário pelo identifier (CPF, CNPJ ou e-mail)
+    user = (
+        NormalUser.objects.filter(email=identifier).first()
+        or NormalUser.objects.filter(cpf=identifier).first()
+        or NormalUser.objects.filter(cnpj=identifier).first()
+)
+
+    if not user:
+        return JsonResponse({"success": False, "message": "User not found"},
+                            status=status.HTTP_404_NOT_FOUND)
+
+    # Gerar o token usando o e-mail do usuário encontrado
+    token = generate_jwt(user.email)
 
     return JsonResponse({"success": True,
                          "token": token},
